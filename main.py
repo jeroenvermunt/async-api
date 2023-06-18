@@ -1,0 +1,110 @@
+
+import aiohttp
+import asyncio
+import ujson
+import urllib
+
+class MaxRetriesError(Exception):
+    pass
+
+
+class apiBase:
+    """base class for async api calls
+    
+    feature: add decorator which calls the correct endpoint
+    """
+    
+    def __init__(self, timeout: int= 30, max_retries: int = 10, verbose: bool = True):
+
+        self.n_retries = 0
+        self.max_retries = max_retries
+        self.verbose = verbose
+    
+        timeout = aiohttp.ClientTimeout(
+                total=timeout, # default value is 5 minutes, set to `None` for unlimited timeout
+                sock_connect=timeout, # How long to wait before an open socket allowed to connect
+                sock_read=timeout # How long to wait with no data being read before timing out
+            )
+
+        self.client_args = dict(
+            trust_env=True,
+            timeout=timeout
+        )
+        
+        self.headers = {}
+        
+    async def handle_error(self, request_func, *args):
+
+        if self.n_retries < self.max_retries:
+            self.n_retries += 1
+            await asyncio.sleep(1)
+            return await request_func(*args)
+        else:
+            raise MaxRetriesError('Max retries reached')        
+
+    async def get(self, url: str, params: dict = None, **kwargs):
+
+        # encode params into string
+        if params:
+            query_string = urllib.parse.urlencode(params)
+            url += '?' + query_string
+
+        try:
+            async with (
+                aiohttp.ClientSession(**self.client_args) as s,
+                s.get(url, headers=self.headers) as r,
+            ):
+                return await self.parse_response(r, **kwargs)
+
+        except aiohttp.ClientError:
+            return await self.handle_error(self.get, url, **kwargs)
+        except asyncio.TimeoutError:
+            return await self.handle_error(self.get, url, **kwargs)
+
+    async def post(self, url, data: dict, **kwargs):
+
+        try:
+            async with (
+                aiohttp.ClientSession(**self.client_args) as s,
+                s.post(url, headers=self.headers, data=ujson.dumps(data)) as r,
+            ):
+                return await self.parse_response(r, **kwargs)
+
+        except aiohttp.ClientError:
+            return await self.handle_error(self.post, url, **kwargs)
+        except asyncio.TimeoutError:
+            return await self.handle_error(self.post, url, **kwargs)
+
+    async def put(self, url, data: dict, **kwargs):
+        
+        try:
+            async with (
+                aiohttp.ClientSession(**self.client_args) as s,
+                s.put(url, headers=self.headers, data=ujson.dumps(data)) as r,
+            ):
+                print(r.status)
+                return await self.parse_response(r, **kwargs)
+
+        except aiohttp.ClientError:
+            return await self.handle_error(self.put, url, **kwargs)
+        except asyncio.TimeoutError:
+            return await self.handle_error(self.put, url, **kwargs)
+
+    async def parse_response(self, response, return_type=None):
+
+        if self.verbose:
+            print(response.status)
+            print(response.reason)
+
+        if return_type == 'json':
+            
+            print('Returning response as json')
+            print('Response keys:', list((await response.json()).keys()))
+
+            return await response.json()
+
+        if self.verbose:
+            print('Returning response as aiohttp response object')
+
+        return response
+    
