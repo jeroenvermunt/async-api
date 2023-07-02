@@ -9,6 +9,7 @@ pysdk is a powerful Python package that provides a universal software developmen
 
 ## Future/ optional features
 
+- **Improved typing and IDE hinting**: pysdk uses type hints to provide better IDE support and code completion.
 - **Authentication Handling**: pysdk supports multiple authentication mechanisms, including API keys, OAuth, and JWT tokens, making it easy to connect to secure APIs.
 - **Rate Limiting**: The SDK includes rate limiting capabilities, helping you stay within the API's rate limits and avoid potential disruptions.
 - **Error Handling**: pysdk provides robust error handling mechanisms, allowing you to handle and log API errors gracefully.
