@@ -1,0 +1,7 @@
+Metadata-Version: 2.1
+Name: pysdk
+Version: 0.0.1
+Summary: Universal SDK for api integrations
+Author: Jeroen Vermunt
+Platform: linux
+Requires-Python: >=3.7

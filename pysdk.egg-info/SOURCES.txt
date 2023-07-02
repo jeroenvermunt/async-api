@@ -1,0 +1,11 @@
+setup.cfg
+setup.py
+./pysdk/__init__.py
+./pysdk/baseclass.py
+./pysdk/metaclass.py
+pysdk.egg-info/PKG-INFO
+pysdk.egg-info/SOURCES.txt
+pysdk.egg-info/dependency_links.txt
+pysdk.egg-info/not-zip-safe
+pysdk.egg-info/requires.txt
+pysdk.egg-info/top_level.txt
