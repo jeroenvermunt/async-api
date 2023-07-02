@@ -1,6 +1,7 @@
 from typing import Union
 import jinja2
 import re
+from importlib import resources
 
 
 def _create_method(
@@ -31,17 +32,18 @@ class ApiMetaclass(type):
     def __new__(mcs, name, bases, namespace, **kwargs):
         cls = super().__new__(mcs, name, bases, namespace, **kwargs)
 
-        if headers := namespace.get('headers'):
-            cls.headers = headers
+        # default to empty headers if not specified
+        cls.headers = namespace.get('headers', {})
 
-        if base_url := namespace.get('base_url'): 
-            cls.base_url = base_url
+        # default to empty base_url if not specified
+        cls.base_url = namespace.get('base_url', '')
 
         # set up jinja environment for code generation
         environment = jinja2.Environment()
 
         # load template for http method from template.txt
-        http_template = environment.from_string(open('template.txt').read())
+        with resources.open_text('pysdk', 'method_template.txt') as f:
+            http_template = environment.from_string(f.read())
 
         # generate method code for each endpoint
         for name, endpoint in namespace.get('endpoints', {}).items():
