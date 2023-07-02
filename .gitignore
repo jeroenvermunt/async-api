@@ -1,1 +1,3 @@
+__pycache__/
 examples/images/*.jpg
+pysdk.egg-info/
