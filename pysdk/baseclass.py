@@ -109,6 +109,10 @@ class ApiBase(metaclass=ApiMetaclass):
             print('Returning response as json')
             return await response.json()
 
+        elif return_type == 'image':
+            print('Returning response as image')
+            return await response.read()
+
         if self.verbose:
             print('Returning response as aiohttp response object')
 
