@@ -41,7 +41,16 @@ class ApiBase(metaclass=ApiMetaclass):
             timeout=timeout
         )
 
-    async def handle_error(self, request_func, *args, **kwargs):
+    async def handle_error(self, e, request_func, *args, **kwargs):
+
+        # check exception type
+        match e.__class__:
+            case aiohttp.ClientConnectorCertificateError:
+                raise e
+            case aiohttp.ClientError:
+                pass
+            case asyncio.TimeoutError:
+                pass
 
         if self.n_retries < self.max_retries:
             self.n_retries += 1
@@ -65,10 +74,8 @@ class ApiBase(metaclass=ApiMetaclass):
             ):
                 return await self.parse_response(r, **kwargs)
 
-        except aiohttp.ClientError:
-            return await self.handle_error(self.get, url, **kwargs)
-        except asyncio.TimeoutError:
-            return await self.handle_error(self.get, url, **kwargs)
+        except Exception as e: 
+            return await self.handle_error(e, self.get, url, **kwargs)
 
     async def post(self, url, data: dict, **kwargs):
 
@@ -79,10 +86,8 @@ class ApiBase(metaclass=ApiMetaclass):
             ):
                 return await self.parse_response(r, **kwargs)
 
-        except aiohttp.ClientError:
-            return await self.handle_error(self.post, url, **kwargs)
-        except asyncio.TimeoutError:
-            return await self.handle_error(self.post, url, **kwargs)
+        except Exception as e: 
+            return await self.handle_error(e, self.get, url, **kwargs)
 
     async def put(self, url, data: dict, **kwargs):
 
@@ -94,10 +99,8 @@ class ApiBase(metaclass=ApiMetaclass):
                 print(r.status)
                 return await self.parse_response(r, **kwargs)
 
-        except aiohttp.ClientError:
-            return await self.handle_error(self.put, url, **kwargs)
-        except asyncio.TimeoutError:
-            return await self.handle_error(self.put, url, **kwargs)
+        except Exception as e: 
+            return await self.handle_error(e, self.get, url, **kwargs)
 
     async def parse_response(self, response, return_type=None):
 
