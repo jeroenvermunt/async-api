@@ -20,7 +20,8 @@ class ApiBase(metaclass=ApiMetaclass):
         self,
         timeout: int = 30,
         max_retries: int = 10,
-        verbose: bool = True
+        verbose: bool = True,
+        **client_kwargs
     ):
 
         self.n_retries = 0
@@ -38,7 +39,8 @@ class ApiBase(metaclass=ApiMetaclass):
 
         self.client_args = dict(
             trust_env=True,
-            timeout=timeout
+            timeout=timeout,
+            **client_kwargs
         )
 
     async def handle_error(self, e, request_func, *args, **kwargs):
@@ -51,6 +53,9 @@ class ApiBase(metaclass=ApiMetaclass):
                 pass
             case asyncio.TimeoutError:
                 pass
+            case _:
+                raise e
+            
 
         if self.n_retries < self.max_retries:
             self.n_retries += 1
