@@ -36,5 +36,6 @@ async def main(status_code):
     with open(f'examples/images/dog_{status_code}.jpg', 'wb') as f:
         f.write(dog_image.result())
 
+
 if __name__ == '__main__':
     asyncio.run(main(102))

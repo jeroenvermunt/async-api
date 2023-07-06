@@ -1,7 +1,9 @@
 from setuptools import setup
 
-setup(
-    package_data={
-        'pysdk': ['method_template.txt'],
-    }
-)
+
+if __name__ == '__main__':
+    setup(
+        package_data={
+            'pysdk': ['method_template.txt'],
+        }
+    )
