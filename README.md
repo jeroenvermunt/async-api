@@ -7,6 +7,7 @@ pysdk is a powerful Python package that provides a universal software developmen
 - **Async Support**: pysdk is built using async/await syntax, allowing you to write efficient and non-blocking code when working with APIs.
 - **Universal Interface**: The package provides a unified interface for connecting to different APIs, reducing the learning curve when switching between services.
 - **Standardized syntax**: Standard syntax for GET, POST, PUT and DELETE requests
+- **Api-libary**: Resource class able to fetch and connnect created api's
 
 ## Future/ optional features
 
