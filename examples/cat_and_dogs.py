@@ -8,12 +8,16 @@ class Cats(ApiSDK):
         'image': 'https://http.cat/{status_code}'
     }
 
+    return_type = 'image'
+
 
 class Dogs(ApiSDK):
 
     endpoints = {
         'image': 'https://http.dog/{status_code}.jpg'
     }
+
+    return_type = 'image'
 
 
 async def main(status_code):
@@ -24,10 +28,10 @@ async def main(status_code):
     # use taskgroup to run multiple requests concurrently, requires python 3.11
     async with asyncio.TaskGroup() as tg:
         cat_image = tg.create_task(
-            cats.image(status_code, return_type='image'))
+            cats.image(status_code))
 
         dog_image = tg.create_task(
-            dogs.image(status_code, return_type='image'))
+            dogs.image(status_code))
 
     # save images to examples.images
     with open(f'examples/images/cat_{status_code}.jpg', 'wb') as f:
