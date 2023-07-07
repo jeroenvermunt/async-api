@@ -38,6 +38,9 @@ class ApiMetaclass(type):
         # default to empty base_url if not specified
         cls.base_url = namespace.get('base_url', '')
 
+        cls.return_type = namespace.get('return_type', None)
+        cls.verbose = namespace.get('verbose', True)
+
         # set up jinja environment for code generation
         environment = jinja2.Environment()
 

@@ -4,7 +4,7 @@ import aiohttp
 import asyncio
 import urllib
 from pysdk.metaclass import ApiMetaclass
-
+from pprint import pprint
 
 class MaxRetriesError(Exception):
     pass
@@ -55,7 +55,6 @@ class ApiBase(metaclass=ApiMetaclass):
                 pass
             case _:
                 raise e
-            
 
         if self.n_retries < self.max_retries:
             self.n_retries += 1
@@ -70,7 +69,11 @@ class ApiBase(metaclass=ApiMetaclass):
         # encode params into string
         if params:
             query_string = urllib.parse.urlencode(params)
-            url += '?' + query_string
+
+            if '?' in url:
+                url += '&' + query_string
+            else:
+                url += '?' + query_string
 
         try:
             async with (
@@ -108,6 +111,9 @@ class ApiBase(metaclass=ApiMetaclass):
             return await self.handle_error(e, self.get, url, **kwargs)
 
     async def parse_response(self, response, return_type=None):
+
+        if not return_type:
+            return_type = self.return_type
 
         if self.verbose:
             print(response.status)
