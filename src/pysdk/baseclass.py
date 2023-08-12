@@ -1,10 +1,13 @@
 
 import json
+import logging
 import aiohttp
 import asyncio
 import urllib
 from pysdk.metaclass import ApiMetaclass
 from pprint import pprint
+
+from pysdk.restricted_parameters import return_types
 
 
 class MaxRetriesError(Exception):
@@ -175,6 +178,7 @@ class ApiBase(metaclass=ApiMetaclass):
             _type_: _description_
         """        
 
+        # use class default if type is not specified in request
         if not return_type:
             return_type = self.return_type
 
@@ -182,11 +186,11 @@ class ApiBase(metaclass=ApiMetaclass):
             print(response.status)
             print(response.reason)
 
-        if return_type == 'json':
+        if return_type == return_types.JSON or return_type == 'json':
             print('Returning response as json')
             return await response.json()
 
-        elif return_type == 'image':
+        elif return_type == return_types.IMAGE or return_type == 'image':
             print('Returning response as image')
             return await response.read()
 

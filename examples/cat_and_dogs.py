@@ -1,7 +1,7 @@
 import asyncio
 import random
 from pysdk import ApiSDK
-
+from pysdk import return_types
 
 class Cats(ApiSDK):
 
@@ -9,7 +9,7 @@ class Cats(ApiSDK):
         'image': 'https://http.cat/{status_code}'
     }
 
-    return_type = 'image'
+    return_type = return_types.IMAGE
 
 
 class Dogs(ApiSDK):
@@ -18,7 +18,7 @@ class Dogs(ApiSDK):
         'image': 'https://http.dog/{status_code}.jpg'
     }
 
-    return_type = 'image'
+    return_type = return_types.IMAGE
 
 
 async def cat_and_dog(status_code):
