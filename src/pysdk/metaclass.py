@@ -6,21 +6,21 @@ from importlib import resources
 
 def _create_method(
     method_name: str,
-    parameters: Union[dict, str],
+    method_parameters: Union[dict, str],
     template: jinja2.Template
 ):
 
     # convert string to dict if necessary, defaults to get method later
-    if isinstance(parameters, str):
-        parameters = {'endpoint': parameters}
+    if isinstance(method_parameters, str):
+        method_parameters = {'endpoint': method_parameters}
 
     # extract arguments from endpoint
-    arguments = re.findall(r'\{(.+?)\}', parameters['endpoint'])
+    arguments = re.findall(r'\{(.+?)\}', method_parameters['endpoint'])
 
     code_string = template.render(
-        http_method=parameters.get('method', 'get'),
+        http_method=method_parameters.get('method', 'get'),
         method_name=method_name,
-        endpoint=parameters['endpoint'],
+        endpoint=method_parameters['endpoint'],
         arguments=arguments
     )
 
@@ -31,9 +31,14 @@ class ApiMetaclass(type):
 
     def __new__(mcs, name, bases, namespace, **kwargs):
         cls = super().__new__(mcs, name, bases, namespace, **kwargs)
-
+        
+        cls.authorization = namespace.get('authorization', None)
+        
         # default to empty headers if not specified
         cls.headers = namespace.get('headers', {})
+        
+        if cls.authorization:
+            cls.headers['Authorization'] = cls.authorization
 
         # default to empty base_url if not specified
         cls.base_url = namespace.get('base_url', '')
@@ -50,6 +55,7 @@ class ApiMetaclass(type):
 
         # generate method code for each endpoint
         for name, endpoint in namespace.get('endpoints', {}).items():
+
             code_string = _create_method(name, endpoint, http_template)
 
             # execute code string in namespace
