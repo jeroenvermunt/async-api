@@ -6,6 +6,7 @@ import urllib
 from pysdk.metaclass import ApiMetaclass
 from pprint import pprint
 
+
 class MaxRetriesError(Exception):
     pass
 
@@ -47,6 +48,12 @@ class ApiBase(metaclass=ApiMetaclass):
             **client_kwargs
         )
 
+    def __enter__(self):
+        raise NotImplementedError('Use async context manager instead')
+
+    def __exit__(self, exc_type, exc, tb):
+        raise NotImplementedError('Use async context manager instead')
+    
     async def __aenter__(self):
         self.open_contexts = self.open_contexts + 1
         if not self.session or self.session.closed:
