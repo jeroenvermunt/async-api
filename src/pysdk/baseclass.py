@@ -6,6 +6,8 @@ import asyncio
 import urllib
 from pysdk.metaclass import ApiMetaclass
 from pprint import pprint
+from pysdk.utils import xray, format_trace
+from pprint import pformat
 
 from pysdk.restricted_parameters import return_types
 
@@ -26,6 +28,7 @@ class ApiBase(metaclass=ApiMetaclass):
         max_retries: int = 10,
         retry_delay: int = 1,
         verbose: bool = True,
+        log_level: str = None,
         **client_kwargs
     ):
 
@@ -35,6 +38,16 @@ class ApiBase(metaclass=ApiMetaclass):
         self.session = None
         self.open_contexts = 0
         self.retry_delay = retry_delay
+        self.logger = logging.getLogger(self.__class__.__name__)
+
+        if verbose and not log_level:
+            log_level = logging.INFO
+    
+        if log_level:
+            # ch = logging.StreamHandler()
+            # ch.setLevel(log_level)
+            # self.logger.addHandler(ch)
+            logging.basicConfig(level=log_level)
 
         timeout = aiohttp.ClientTimeout(
                 # default value is 5 minutes, set to `None` for unlimited
@@ -50,7 +63,7 @@ class ApiBase(metaclass=ApiMetaclass):
             timeout=timeout,
             **client_kwargs
         )
-
+        
     def __enter__(self):
         raise NotImplementedError('Use async context manager instead')
 
@@ -112,7 +125,7 @@ class ApiBase(metaclass=ApiMetaclass):
 
         Returns:
             output of self.parse_response: 
-        """        
+        """
 
         # encode query parameters into the url
         if params:
@@ -122,6 +135,9 @@ class ApiBase(metaclass=ApiMetaclass):
                 url += '&' + query_string
             else:
                 url += '?' + query_string
+
+        self.logger.debug(format_trace('Method', 'GET'))
+        self.logger.debug(xray(url))
 
         # open a session if not already open and send request
         try:
@@ -138,10 +154,9 @@ class ApiBase(metaclass=ApiMetaclass):
 
     async def post(self, url, data: dict, **kwargs):
 
-        if self.verbose:
-            print(f'Calling post method')
-            print(f'Url: {url}')
-            pprint(data)
+        self.logger.debug(format_trace('Method', 'POST'))
+        self.logger.debug(xray(url))
+        self.logger.debug(format_trace('Data', pformat(data)))
 
         try:
             async with (
@@ -168,7 +183,9 @@ class ApiBase(metaclass=ApiMetaclass):
             return await self.handle_error(e, self.get, url, **kwargs)
 
     async def parse_response(self, response, return_type=None):
-        """_summary_
+        """
+        
+        TODO: Handle aiohttp.client_exceptions.ContentTypeError
 
         Args:
             response (_type_): _description_
@@ -182,19 +199,20 @@ class ApiBase(metaclass=ApiMetaclass):
         if not return_type:
             return_type = self.return_type
 
-        if self.verbose:
-            print(response.status)
-            print(response.reason)
+        self.logger.info(xray(response.status))
+        self.logger.info(xray(response.reason))
 
         if return_type == return_types.JSON or return_type == 'json':
-            print('Returning response as json')
-            return await response.json()
+            self.logger.info('Returning response as json')
+            response = await response.json()
+            self.logger.debug(format_trace('Response', pformat(response)))
+            return response
 
         elif return_type == return_types.IMAGE or return_type == 'image':
-            print('Returning response as image')
+            self.logger.info('Returning response as image')
             return await response.read()
 
         if self.verbose:
-            print('Returning response as aiohttp response object')
+            self.logger.info('Returning response as aiohttp response object')
 
         return response
