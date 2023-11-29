@@ -86,13 +86,13 @@ class ApiBase(metaclass=ApiMetaclass):
         # check exception type
         match e.__class__:
 
-            case aiohttp.ClientConnectorCertificateError:
+            case aiohttp.ClientConnectorCertificateError():
                 # raise certificate error, no use to retry
                 raise e
 
-            case aiohttp.ClientError:
+            case aiohttp.ClientError():
                 pass
-            case asyncio.TimeoutError:
+            case asyncio.TimeoutError():
                 pass
 
             # if no match (unexpected), raise the exception

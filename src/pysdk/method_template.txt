@@ -1,3 +1,5 @@
-async def {{ method_name }}(self{% for argument in arguments %}, {{ argument }}{% endfor %}, **kwargs):
-    url = self.base_url + '{{ endpoint }}'.format({% for argument in arguments %}{{ argument }}={{ argument }},{% endfor %})
+async def {{ method_name }}(self{% for argument in query_parameters %}, {{ argument }}{% endfor %}, **kwargs):
+
+    url = self.base_url + '{{ endpoint }}'.format({% for argument in query_parameters %}{{ argument }}={{ argument }},{% endfor %})
+
     return await self.{{http_method}}(url, **kwargs)

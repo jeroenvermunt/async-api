@@ -3,6 +3,7 @@ import random
 from pysdk import ApiSDK
 from pysdk import return_types
 
+
 class Cats(ApiSDK):
 
     endpoints = {
