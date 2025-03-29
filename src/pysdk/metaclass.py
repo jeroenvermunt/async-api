@@ -1,3 +1,4 @@
+import logging
 import re
 import sys
 from importlib import resources
@@ -11,6 +12,9 @@ MODEL_IMPORTS = []
 MODEL_IMPORTS_2 = (
     []
 )  # this is not used, but might be useful later for generation of a file
+
+
+META_LOGGER = logging.getLogger("ApiMetaclass")
 
 
 def _parse_base_model(model: BaseModel) -> dict[str, str]:
@@ -208,8 +212,8 @@ def _build_methods(cls, namespace):
         exec(import_statement, globals(), namespace)
 
     for name, code_string in code_strings.items():
-        if cls.verbose:
-            print(code_string)
+        # if cls.verbose:
+        #     print(code_string)
 
         # include the MODELS_IMPORTS models into the global namespace
         global_namespace = globals()
@@ -223,6 +227,8 @@ def _build_methods(cls, namespace):
         # add method to class
         setattr(cls, name, namespace[name])
 
+        META_LOGGER.debug(f"Method {name} added to class")
+
     return cls
 
 
@@ -234,6 +240,7 @@ class ApiMetaclass(type):
 
         # default to empty headers if not specified
         cls.headers = namespace.get("headers", {})
+        print(f"Headers: {cls.headers}")
 
         if cls.authorization:
             cls.headers["Authorization"] = cls.authorization
@@ -243,10 +250,27 @@ class ApiMetaclass(type):
 
         cls.return_type = namespace.get("return_type", None)
         cls.verbose = namespace.get("verbose", True)
+        cls.log_level = namespace.get("log_level", None)
+
+        if cls.verbose and not cls.log_level:
+            cls.log_level = "INFO"
+
+        if cls.log_level:
+            # get current log level
+            current_log_level = logging.getLogger().getEffectiveLevel()
+
+            logging.basicConfig(level=namespace["log_level"])
+            getattr(META_LOGGER, namespace["log_level"].lower())(
+                f"Log level set to {namespace['log_level']}"
+            )
 
         # build methods and run in namespace if build is True
         if namespace.get("build", True):
             cls = _build_methods(cls, namespace)
+
+        if cls.log_level:
+            # reset log level to default
+            logging.basicConfig(level=current_log_level)
 
         return cls
 
