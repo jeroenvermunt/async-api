@@ -147,8 +147,6 @@ class ApiBase(metaclass=ApiMetaclass):
         self.logger.debug(format_trace("Method", method.upper()))
         self.logger.debug(xray(url))
 
-        print(data)
-
         # open a session if not already open and send request
         try:
             async with (
