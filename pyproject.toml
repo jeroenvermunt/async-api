@@ -17,7 +17,8 @@ keywords = ["sdk", "api", "integration", "universal"]
 dependencies = [
     "jinja2",
     "aiohttp",
-    "pydantic"
+    "pydantic",
+    "pydantic_core"
 ]
 
 [tool.setuptools.packages.find]
