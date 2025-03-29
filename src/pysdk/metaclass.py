@@ -234,7 +234,6 @@ class ApiMetaclass(type):
 
         # default to empty headers if not specified
         cls.headers = namespace.get("headers", {})
-        print(f"Headers: {cls.headers}")
 
         if cls.authorization:
             cls.headers["Authorization"] = cls.authorization
@@ -250,17 +249,11 @@ class ApiMetaclass(type):
             cls.log_level = "INFO"
 
         if cls.log_level:
-            # get current log level
-            current_log_level = logging.getLogger().getEffectiveLevel()
-            logging.basicConfig(level=cls.log_level)
+            META_LOGGER.setLevel(cls.log_level)
 
         # build methods and run in namespace if build is True
         if namespace.get("build", True):
             cls = _build_methods(cls, namespace)
-
-        if cls.log_level:
-            # reset log level to default
-            logging.basicConfig(level=current_log_level)
 
         return cls
 
