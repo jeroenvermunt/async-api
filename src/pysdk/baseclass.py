@@ -46,7 +46,7 @@ class ApiBase(metaclass=ApiMetaclass):
             # ch = logging.StreamHandler()
             # ch.setLevel(log_level)
             # self.logger.addHandler(ch)
-            logging.basicConfig(level=log_level)
+            self.logger.setLevel(log_level)
 
         timeout = aiohttp.ClientTimeout(
             # default value is 5 minutes, set to `None` for unlimited
@@ -147,13 +147,15 @@ class ApiBase(metaclass=ApiMetaclass):
         self.logger.debug(format_trace("Method", method.upper()))
         self.logger.debug(xray(url))
 
+        print(data)
+
         # open a session if not already open and send request
         try:
             async with (
                 self as s,
                 getattr(s, method)(
                     url,
-                    data=json.dumps(data),
+                    data=json.dumps(data) if data else None,
                     headers=self.headers,
                     allow_redirects=allow_redirects,
                 ) as r,
