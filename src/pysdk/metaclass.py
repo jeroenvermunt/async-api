@@ -128,10 +128,10 @@ def _create_method(
     """
 
     # load template for http method from template.jinja
-    with resources.open_text("pysdk", "method_template.jinja") as f:
+    with resources.open_text("pysdk.templates", "method_template.jinja") as f:
         http_template = environment.from_string(f.read())
 
-    with resources.open_text("pysdk", "body_template.jinja") as f:
+    with resources.open_text("pysdk.templates", "body_template.jinja") as f:
         body_jinja_template = environment.from_string(f.read())
 
     # if only a string is passed, transform it into a dictionary
@@ -178,7 +178,7 @@ def _build_methods(cls, namespace):
     # if metaclasses are detected, we need to import them into the namespace
     if MODEL_IMPORTS:
         # load template for import statement from import_template.jinja
-        with resources.open_text("pysdk", "import_template.jinja") as f:
+        with resources.open_text("pysdk.templates", "import_template.jinja") as f:
             import_template = environment.from_string(f.read())
 
         # generate import statement

@@ -1,8 +1,0 @@
-{ {% for element in body_template %}{% if element.type == 'parameter' %}
-        '{{ element.key }}': {{ element.value }}{% elif element.type == 'default' %}
-        '{{ element.key }}': {% if element.python_type == 'str' %}'{{ element.value }}'{% else %}{{ element.value }}{% endif %}{% elif element.type == 'dict' %}
-        '{{ element.key }}': {{ element.value }}{% elif element.type == 'model' %}
-        '{{ element.key }}': {{ element.model }}(
-            {% for p in element.parameters %}{{ p }}={{ p }},{% endfor %}
-        ).model_dump(){% endif %},{% endfor %}
-    }
