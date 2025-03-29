@@ -1,14 +1,16 @@
-from typing import Union
-import jinja2
 import re
-from importlib import resources
-from pydantic import BaseModel
 import sys
-import pydantic_core
+from importlib import resources
+from typing import Union
 
+import jinja2
+import pydantic_core
+from pydantic import BaseModel
 
 MODEL_IMPORTS = []
-MODEL_IMPORTS_2 = []  # this is not used, but might be useful later for generation of a file
+MODEL_IMPORTS_2 = (
+    []
+)  # this is not used, but might be useful later for generation of a file
 
 
 def _parse_base_model(model: BaseModel) -> dict[str, str]:
@@ -28,11 +30,18 @@ def _parse_base_model(model: BaseModel) -> dict[str, str]:
     required_fields = {}
 
     for field_name, field_info in fields.items():
-
         # the field is required if it has the default value of PydanticUndefinedType
+<<<<<<< HEAD
         if (field_info.default
                 and isinstance(field_info.default, pydantic_core._pydantic_core.PydanticUndefinedType)):
 
+=======
+        if (
+            field_info.default
+            and type(field_info.default)
+            is pydantic_core._pydantic_core.PydanticUndefinedType
+        ):
+>>>>>>> d04e59e (black formatting)
             required_fields[field_name] = field_info.annotation.__name__
 
     return required_fields
@@ -54,12 +63,9 @@ def _parse_body(body: dict, body_jinja_template: jinja2.Template) -> tuple[list,
     body_parameters = {}
 
     for k, v in body.items():
-
         match type(v).__name__:
-
             # if the value is a pydantic model, parse it to find its fields
-            case 'ModelMetaclass':
-
+            case "ModelMetaclass":
                 # add model to list of imports
                 MODEL_IMPORTS.append(v.__name__)
                 # MODEL_IMPORTS_2.append((v._classline_, v._thisline_))
@@ -68,53 +74,45 @@ def _parse_body(body: dict, body_jinja_template: jinja2.Template) -> tuple[list,
                 body_parameters.update(parameters)
 
                 template = {
-                    'key': k,
-                    'type': 'model',
-                    'model': v.__name__,
-                    'parameters': [k for k in parameters.keys()]
+                    "key": k,
+                    "type": "model",
+                    "model": v.__name__,
+                    "parameters": [k for k in parameters.keys()],
                 }
 
                 body_dict_template.append(template)
 
             # if the value is a string, parse it to find its parameters or
             # use it as a default value
-            case 'str':
-
+            case "str":
                 # parse string to find parameter
-                if v[0] == '{' and v[-1] == '}':
-                    body_parameters[v[1:-1]] = 'str'
+                if v[0] == "{" and v[-1] == "}":
+                    body_parameters[v[1:-1]] = "str"
 
-                    template = {
-                        'key': k,
-                        'type': 'parameter',
-                        'value': v[1:-1]
-                    }
+                    template = {"key": k, "type": "parameter", "value": v[1:-1]}
 
                 # use string as default value
                 else:
                     template = {
-                        'key': k,
-                        'type': 'default',
-                        'python_type': type(v).__name__,
-                        'value': v
+                        "key": k,
+                        "type": "default",
+                        "python_type": type(v).__name__,
+                        "value": v,
                     }
 
                 body_dict_template.append(template)
 
             # if the value is a dictionary, parse it recursively
-            case 'dict':
-
+            case "dict":
                 template, parameters = _parse_body(v, body_jinja_template)
 
                 # pre-render the body string
-                body_string = body_jinja_template.render(
-                    body_template=template
-                )
+                body_string = body_jinja_template.render(body_template=template)
 
                 template = {
-                    'key': k,
-                    'type': 'dict',
-                    'value': body_string,
+                    "key": k,
+                    "type": "dict",
+                    "value": body_string,
                 }
 
                 body_dict_template.append(template)
@@ -124,9 +122,7 @@ def _parse_body(body: dict, body_jinja_template: jinja2.Template) -> tuple[list,
 
 
 def _create_method(
-    name: str,
-    config: Union[dict, str],
-    environment: jinja2.Environment
+    name: str, config: Union[dict, str], environment: jinja2.Environment
 ):
     """
     TODO: Check if method exists in namespace, if not generate code for method
@@ -134,46 +130,43 @@ def _create_method(
     """
 
     # load template for http method from template.jinja
-    with resources.open_text('pysdk', 'method_template.jinja') as f:
+    with resources.open_text("pysdk", "method_template.jinja") as f:
         http_template = environment.from_string(f.read())
 
-    with resources.open_text('pysdk', 'body_template.jinja') as f:
+    with resources.open_text("pysdk", "body_template.jinja") as f:
         body_jinja_template = environment.from_string(f.read())
 
     # if only a string is passed, transform it into a dictionary
     if isinstance(config, str):
-        config = {'endpoint': config}
+        config = {"endpoint": config}
 
     # extract arguments from endpoint query parameters
-    query_parameters = re.findall(r'\{(.+?)\}', config['endpoint'])
+    query_parameters = re.findall(r"\{(.+?)\}", config["endpoint"])
     query_parameters = set(query_parameters)
 
-    body = config.get('body', None)
+    body = config.get("body", None)
 
     if body:
         body_template, body_parameters = _parse_body(body, body_jinja_template)
-        body_string = body_jinja_template.render(
-            body_template=body_template
-        )
+        body_string = body_jinja_template.render(body_template=body_template)
 
     else:
         body_string = None
         body_parameters = {}
 
     code_string = http_template.render(
-        http_method=config.get('method', 'get'),
+        http_method=config.get("method", "get"),
         method_name=name,
-        endpoint=config['endpoint'],
+        endpoint=config["endpoint"],
         query_parameters=query_parameters,
         body_parameters=body_parameters.keys(),
-        body=body_string
+        body=body_string,
     )
 
     return code_string
 
 
 def _build_methods(cls, namespace):
-
     # set up jinja environment for code generation
     environment = jinja2.Environment()
 
@@ -181,34 +174,33 @@ def _build_methods(cls, namespace):
     code_strings = {}
 
     # generate method code for each endpoint
-    for name, endpoint in namespace.get('endpoints', {}).items():
+    for name, endpoint in namespace.get("endpoints", {}).items():
         code_strings[name] = _create_method(name, endpoint, environment)
 
     # if metaclasses are detected, we need to import them into the namespace
     if MODEL_IMPORTS:
-
         # load template for import statement from import_template.jinja
-        with resources.open_text('pysdk', 'import_template.jinja') as f:
+        with resources.open_text("pysdk", "import_template.jinja") as f:
             import_template = environment.from_string(f.read())
 
         # generate import statement
         cwd = sys.path[0]
         running_file = sys.argv[0]
 
-        relative_import = (running_file.replace(cwd, '')
-                                       .replace('.py', '')
-                                       .replace('/', '.')
-                                       .strip('.'))
+        relative_import = (
+            running_file.replace(cwd, "")
+            .replace(".py", "")
+            .replace("/", ".")
+            .strip(".")
+        )
 
-        if ' ' in relative_import:
-            raise ValueError('Spaces in path are not supported')
+        if " " in relative_import:
+            raise ValueError("Spaces in path are not supported")
 
         import_statement = import_template.render(
             imports=[
-                {
-                    'relative_import': relative_import,
-                    'model': model
-                } for model in MODEL_IMPORTS
+                {"relative_import": relative_import, "model": model}
+                for model in MODEL_IMPORTS
             ]
         )
 
@@ -216,7 +208,6 @@ def _build_methods(cls, namespace):
         exec(import_statement, globals(), namespace)
 
     for name, code_string in code_strings.items():
-
         if cls.verbose:
             print(code_string)
 
@@ -236,26 +227,25 @@ def _build_methods(cls, namespace):
 
 
 class ApiMetaclass(type):
-
     def __new__(mcs, name, bases, namespace, **kwargs):
         cls = super().__new__(mcs, name, bases, namespace, **kwargs)
 
-        cls.authorization = namespace.get('authorization', None)
+        cls.authorization = namespace.get("authorization", None)
 
         # default to empty headers if not specified
-        cls.headers = namespace.get('headers', {})
+        cls.headers = namespace.get("headers", {})
 
         if cls.authorization:
-            cls.headers['Authorization'] = cls.authorization
+            cls.headers["Authorization"] = cls.authorization
 
         # default to empty base_url if not specified
-        cls.base_url = namespace.get('base_url', '')
+        cls.base_url = namespace.get("base_url", "")
 
-        cls.return_type = namespace.get('return_type', None)
-        cls.verbose = namespace.get('verbose', True)
+        cls.return_type = namespace.get("return_type", None)
+        cls.verbose = namespace.get("verbose", True)
 
         # build methods and run in namespace if build is True
-        if namespace.get('build', True):
+        if namespace.get("build", True):
             cls = _build_methods(cls, namespace)
 
         return cls

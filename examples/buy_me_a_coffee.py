@@ -1,23 +1,23 @@
 import asyncio
-# import inspect
-from pysdk import ApiSDK
-from pysdk import return_types
+
 from pydantic import BaseModel, field_validator
+
+# import inspect
+from pysdk import ApiSDK, return_types
 
 
 # define a pydantic model for the body of our post request
 class Amount(BaseModel):
-
-    currency: str = 'EUR'
+    currency: str = "EUR"
     value: str  # no default value, meaning it is required to be passed
 
-    @field_validator('value', mode='before')
+    @field_validator("value", mode="before")
     def two_decimals(cls, v):
         """
         transforms value into format accepted by mollie
         api with 2 decimals and dot as separator
         """
-        return f'{v:.2f}'
+        return f"{v:.2f}"
 
     # this might be useful later for generation of a file
     # _classline_ = inspect.currentframe().f_code.co_firstlineno
@@ -25,24 +25,31 @@ class Amount(BaseModel):
 
 
 class BuyMeACoffee(ApiSDK):
+    base_url = "https://api.mollie.com/v2"
+    authorization = "Bearer test_hhPcGuBTrpgezB7UcuKhVnUVBe66yD"
 
+<<<<<<< HEAD
     base_url = 'https://api.mollie.com/v2'
     authorization = 'Bearer test_hhPcGuBTrpgezB7UcuKhVnUVBe66yD'  # replace with your own test token
 
     headers = {
         'Content-Type': 'application/json'
     }
+=======
+    headers = {"Content-Type": "application/json"}
+>>>>>>> cbfef81 (revert last commit and black formatting)
 
     # define endpoints, notice we can use the pydantic model in the body
     endpoints = {
-        'buy_me_a_coffee': {
-            'method': 'POST',
-            'endpoint': '/payment-links',
-            'body': {
-                'amount': Amount,
-                'description': 'Buy me a coffee',
+        "buy_me_a_coffee": {
+            "method": "POST",
+            "endpoint": "/payment-links",
+            "body": {
+                "amount": Amount,
+                "description": "Buy me a coffee",
             },
         },
+<<<<<<< HEAD
 
         # As an alternative to pydantic, we can define the request like so
         'buy_me_another_coffee': {
@@ -54,6 +61,14 @@ class BuyMeACoffee(ApiSDK):
                     'value': '{amount}'  # notice that we have no validation, and the user must use the current formatting accepted by Mollie
                 },
                 'description': 'Buy me a coffee',
+=======
+        "buy_me_another_coffee": {
+            "method": "POST",
+            "endpoint": "/payment-links",
+            "body": {
+                "amount": {"currency": "EUR", "value": "{amount}"},
+                "description": "Buy me a coffee",
+>>>>>>> cbfef81 (revert last commit and black formatting)
             },
         },
     }
@@ -83,17 +98,13 @@ async def buy_me_a_coffee():
     bmac = BuyMeACoffee()
 
     async with asyncio.TaskGroup() as tg:
-        link_small_coffee = tg.create_task(
-            bmac.small())
+        link_small_coffee = tg.create_task(bmac.small())
 
-        link_medium_coffee = tg.create_task(
-            bmac.medium())
+        link_medium_coffee = tg.create_task(bmac.medium())
 
-        link_large_coffee = tg.create_task(
-            bmac.large())
+        link_large_coffee = tg.create_task(bmac.large())
 
-        link_custom_coffee = tg.create_task(
-            bmac.custom_size(100))
+        link_custom_coffee = tg.create_task(bmac.custom_size(100))
 
     print(link_small_coffee.result())
     print(link_medium_coffee.result())
@@ -106,8 +117,7 @@ async def buy_me_a_coffee():
     # another_coffee = await bmac.another_coffee('10')
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     asyncio.run(buy_me_a_coffee())
 
     # Amount(value=2.5)

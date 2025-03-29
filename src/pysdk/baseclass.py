@@ -1,14 +1,14 @@
-
+import asyncio
 import json
 import logging
-import aiohttp
-import asyncio
 import urllib
-from pysdk.metaclass import ApiMetaclass
-from pysdk.utils import xray, format_trace
 from pprint import pformat
+from typing import Optional, Union
 
+import aiohttp
+from pysdk.metaclass import ApiMetaclass
 from pysdk.restricted_parameters import return_types
+from pysdk.utils import format_trace, xray
 
 
 class MaxRetriesError(Exception):
@@ -27,7 +27,7 @@ class ApiBase(metaclass=ApiMetaclass):
         max_retries: int = 10,
         retry_delay: int = 1,
         verbose: bool = True,
-        log_level: str = None,
+        log_level: Optional[Union[str, int]] = None,
         **client_kwargs
     ):
 
@@ -62,6 +62,10 @@ class ApiBase(metaclass=ApiMetaclass):
             timeout=timeout,
             **client_kwargs
         )
+
+        self.session: aiohttp.ClientSession = None
+        self.headers: dict = {}
+        self.return_type: str = ''
 
     def __enter__(self):
         raise NotImplementedError('Use async context manager instead')
@@ -220,3 +224,4 @@ class ApiBase(metaclass=ApiMetaclass):
             self.logger.info('Returning response as aiohttp response object')
 
         return response
+
