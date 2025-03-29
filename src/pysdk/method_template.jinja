@@ -1,9 +1,7 @@
 async def {{ method_name }}(self{% for argument in query_parameters %}, {{ argument }}{% endfor %}{% for argument in body_parameters %}, {{ argument }}{% endfor %},  **kwargs):
 
-    url = self.base_url + '{{ endpoint }}'.format({% for argument in query_parameters %}{{ argument }}={{ argument }},{% endfor %})
+    url = self.base_url + '{{ endpoint }}'.format({% for argument in query_parameters %}{{ argument }}={{ argument }}, {% endfor %})
 
     data = {{ body }}
-
-    print(data)
 
     return await self.{{ http_method|lower }}(url, data=data, **kwargs)
