@@ -23,5 +23,7 @@ pysdk is a powerful Python package that provides a universal software developmen
 
 You can install pysdk using pip:
 
+`pip install git+https://github.com/jeroenvermunt/async-api`
+
 ## Usage
 Checkout the examples to see pysdk in action
