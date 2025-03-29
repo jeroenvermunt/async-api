@@ -28,16 +28,7 @@ class BuyMeACoffee(ApiSDK):
     base_url = "https://api.mollie.com/v2"
     authorization = "Bearer test_hhPcGuBTrpgezB7UcuKhVnUVBe66yD"
 
-<<<<<<< HEAD
-    base_url = 'https://api.mollie.com/v2'
-    authorization = 'Bearer test_hhPcGuBTrpgezB7UcuKhVnUVBe66yD'  # replace with your own test token
-
-    headers = {
-        'Content-Type': 'application/json'
-    }
-=======
     headers = {"Content-Type": "application/json"}
->>>>>>> cbfef81 (revert last commit and black formatting)
 
     # define endpoints, notice we can use the pydantic model in the body
     endpoints = {
@@ -49,26 +40,12 @@ class BuyMeACoffee(ApiSDK):
                 "description": "Buy me a coffee",
             },
         },
-<<<<<<< HEAD
-
-        # As an alternative to pydantic, we can define the request like so
-        'buy_me_another_coffee': {
-            'method': 'POST',
-            'endpoint': '/payment-links',
-            'body': {
-                'amount': {
-                    'currency': 'EUR',
-                    'value': '{amount}'  # notice that we have no validation, and the user must use the current formatting accepted by Mollie
-                },
-                'description': 'Buy me a coffee',
-=======
         "buy_me_another_coffee": {
             "method": "POST",
             "endpoint": "/payment-links",
             "body": {
                 "amount": {"currency": "EUR", "value": "{amount}"},
                 "description": "Buy me a coffee",
->>>>>>> cbfef81 (revert last commit and black formatting)
             },
         },
     }

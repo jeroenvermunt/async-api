@@ -35,17 +35,11 @@ def _parse_base_model(model: BaseModel) -> dict[str, str]:
 
     for field_name, field_info in fields.items():
         # the field is required if it has the default value of PydanticUndefinedType
-<<<<<<< HEAD
-        if (field_info.default
-                and isinstance(field_info.default, pydantic_core._pydantic_core.PydanticUndefinedType)):
-
-=======
         if (
             field_info.default
             and type(field_info.default)
             is pydantic_core._pydantic_core.PydanticUndefinedType
         ):
->>>>>>> d04e59e (black formatting)
             required_fields[field_name] = field_info.annotation.__name__
 
     return required_fields
