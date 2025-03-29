@@ -252,11 +252,7 @@ class ApiMetaclass(type):
         if cls.log_level:
             # get current log level
             current_log_level = logging.getLogger().getEffectiveLevel()
-
-            logging.basicConfig(level=namespace["log_level"])
-            getattr(META_LOGGER, namespace["log_level"].lower())(
-                f"Log level set to {namespace['log_level']}"
-            )
+            logging.basicConfig(level=cls.log_level)
 
         # build methods and run in namespace if build is True
         if namespace.get("build", True):
