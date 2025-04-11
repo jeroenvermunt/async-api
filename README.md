@@ -18,6 +18,7 @@ pysdk is a powerful Python package that provides a universal software developmen
 - **Rate Limiting**: The SDK includes rate limiting capabilities, helping you stay within the API's rate limits and avoid potential disruptions.
 - **Advanced Error Handling**: pysdk provides robust error handling mechanisms, allowing you to handle and log API errors gracefully.
 - **Telemetry**: When an universal SDK is used for api communication, telemetry becomes very powerful to log data streams
+- **MCP server generation**: The generated code is perfectly suited for MCP endpoints, making it easy to build your own MCP for a given API.
 
 ## Installation
 
